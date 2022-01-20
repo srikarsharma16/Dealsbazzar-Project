@@ -157,35 +157,47 @@ public class WebController
         return new ResponsesData("Logout Sucessfully",200,true);
     }
 
-	/* @GetMapping("/getUserById/{userid}")
-    public ResponseData getById(@PathVariable String userid) {
+	@GetMapping("/getUserById/{token}")
+    public ResponseData getById(@PathVariable String token) {
+
+		String userid = jwtTokenUtil.getUserIdFromToken(token);
 
         SystemUser u = systemUserService.validateId(userid);
-        if (u == null) {
-            return new ResponseData(800, null, "User not Persent");
+		u.setUserId(token);
+		u.setPassword("");
+		u.setDob("");
+		u.setIsActive(null);
+        if (u != null) {
+            //return new ResponseData(800, null, "User not Persent");
+			return new ResponseData(200, u, "Received user details successfully");
         }
-        SystemUser result = systemUserService.getById(userid);
-        if (result != null) {
+		return new ResponseData(400, null, "User details could not be found");
+        //SystemUser result = systemUserService.getById(userid);
+        /* if (result != null) {
             return new ResponseData(200, result, "Received user details successfully");
         } else {
             return new ResponseData(400, null, "User details could not be found");
-        } 
-
-    } */
+        }  */
+    }
 
     @PutMapping("/updateProfile")
     public ResponseData updateProfile(@RequestBody SystemUser systemUser) {
-        SystemUser data = systemUserService.validateId(systemUser.getUserId());
-        if (data == null) {
-            return new ResponseData(800, null, "User id is required");
+		String userid = jwtTokenUtil.getUserIdFromToken(systemUser.getUserId());
+
+        SystemUser data = systemUserService.validateId(userid);
+		
+        if (data != null) {
+			data.setName(systemUser.getName());
+			data.setAddress(systemUser.getAddress());
+			data.setEmail(systemUser.getEmail());
+			data.setPhone(systemUser.getPhone());
+			data = systemUserService.updateProfile(data);
+			data.setUserId(systemUser.getUserId());
+			
+			return new ResponseData(200, data, "User detail is successfully updated");
+            
         }
-        data = new SystemUser();
-        data = systemUserService.updateProfile(systemUser);
-        if (data == null) {
-            return new ResponseData(400, systemUser, "User details could not be updated");
-        } else {
-            return new ResponseData(200, data, "User detail is successfully updated");
-        }
+		return new ResponseData(400, systemUser, "User details could not be updated");
     }
 	
 /* 	public ResponseEntity login(@RequestBody Hospitals hospitals) 
