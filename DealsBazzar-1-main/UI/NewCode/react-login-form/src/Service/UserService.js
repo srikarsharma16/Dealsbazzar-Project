@@ -1,5 +1,5 @@
 class UserService{
-    updateProfile = (data, token) => {
+    updateProfile = (data) => {
 
         console.log(data)
         return fetch("http://localhost:8080/web/updateProfile", {
@@ -14,7 +14,8 @@ class UserService{
         return fetch(`http://localhost:8080/admin/getUserById/${userId}`)
     } */
     getUser = (token) => {
-        return fetch("http://localhost:8080/web/getUserById/${userId}")
+        console.log("first",token)
+        return fetch(`http://localhost:8080/web/getUserById/${token}`)
     }
 }
 

@@ -16,3 +16,10 @@ export const ACTION_USER_UPDATE_TOKEN = {
         token : undefined
     }
 }
+
+export const ACTION_LOAD_USER_DATA = {
+    type : actionType.LOAD_USERDATA,
+    payload : {
+        userdetails : undefined
+    }
+}

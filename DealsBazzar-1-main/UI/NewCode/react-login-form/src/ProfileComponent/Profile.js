@@ -8,62 +8,75 @@ import "./Profile.css";
 //import * as actions from '../Redux/Action/ProfileAction'
 //import User from '../Redux/User'
 import store from '../Redux/Store'
+import Store from '../Redux/Store'
 import UserService from '../Service/UserService'
 import {ACTION_USER_UPDATE_TOKEN} from '../Redux/Action/UserAction'
 import { ACTION_USER_LOGOUT} from '../Redux/Action/UserAction'
+import {ACTION_LOAD_USER_DATA} from '../Redux/Action/UserAction'
 
 var mapStateToProps = state => {
   return {
-    user: state.user
+    user: state.user,
+    token: state.user.token
   }
 }
 
 class Profile extends React.Component
 {
-      constructor() {
+       constructor() {
         super()
         //console.log(this.props.data)
          this.state={
-          /* name:this.props.name,
-          phone:this.props.phone,
-          address:this.props.address
-      }  */
-      user:{name:'',phone:'',address:'',email:''}
-    }
-  }
+          editStatus:false,
+          name:'',
+          phone:'',
+          address:'',
+          email:''
+      }
+      
+      //user:{name:'',phone:'',address:'',email:''}
+  } 
 
-    componentDidUpdate() {
+    /* componentDidUpdate() {
         this.name.value=this.state.user.name
         this.phone.value=this.state.user.phone
         this.address.value=this.state.user.address
         
     }
-
-    /* componentDidMount() {
-        UserService.getUser(this.props.user.token).then(response => response.json()).then(data=> {
-            if(data.status){
-                store.dispatch({
-                    ...ACTION_USER_UPDATE_TOKEN,
-                    payload:{token:data.token}
-                })
-                this.setState({user:data.user})
-            }
-            else{
-                if(data.code==401)
-                    alert("session lost")
-                    store.dispatch({...ACTION_USER_LOGOUT})
-            }
-        });
-    }
  */
+    componentDidMount() {
+        this.setState({name:this.props.user.userdetails.name,
+          email:this.props.user.userdetails.email,
+          phone:this.props.user.userdetails.phone,
+          address:this.props.user.userdetails.address})
+    }
+    componentDidUnmount() {
+      this.setState({editStatus:false})
+    }
+
+    
+
     updateProfile = (event) => {
         var ob = {
+            userId:this.props.user.token,
             name:this.name.value,
             phone:this.phone.value,
-            address:this.address.value
+            address:this.address.value,
+            email:this.email.value
         }
-        UserService.updateProfile(ob,this.props.user.token).then(response => response.json()).then(data=> {
+        this.setState({editStatus:false})
+        UserService.updateProfile(ob)
+        .then(response => response.json())
+        .then(data=> {
             console.log(data)
+            if(data.statusCode==200){
+                alert("User Updated Successfully");
+              Store.dispatch({
+                  ...ACTION_LOAD_USER_DATA,
+                  payload:{userdetails:data.data}
+              })
+              
+          }
         });
         event.preventDefault()
     }
@@ -76,6 +89,7 @@ class Profile extends React.Component
               return<Navigate to="/"></Navigate>
           }
           return <>
+      
 <div class="container bootstrap snippets bootdeys">
 <div class="row">
   <div class="col-xs-12 col-sm-9">
@@ -92,34 +106,80 @@ class Profile extends React.Component
           <div class="form-group">
             <label class="col-sm-2 control-label">User Name</label>
             <div class="col-sm-10">
-              <input type="text" class="form-control" ref={c => this.name = c}></input>
+              {this.state.editStatus!=false?
+              <input type="text" class="form-control"
+              onChange={(event)=>{
+                this.setState({name:event.target.value})
+              }}
+              value={this.state.name} ref={c => this.name = c}></input>
+              :<input type="text" class="form-control"
+              value={this.state.name} ref={c => this.name = c}></input>}
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="col-sm-2 control-label">User Email</label>
+            <div class="col-sm-10">
+            {this.state.editStatus!=false?
+              <input type="text" class="form-control"
+              onChange={(event)=>{
+                this.setState({email:event.target.value})
+              }}
+              value={this.state.email} ref={c => this.email = c}></input>
+              :<input type="text" class="form-control"
+              value={this.state.email} ref={c => this.email = c}></input>}
             </div>
           </div>
 
           <div class="form-group">
             <label class="col-sm-2 control-label">Mobile number</label>
             <div class="col-sm-10">
-              <input type="tel" class="form-control" ref={c => this.phone = c}></input>
+            {this.state.editStatus!=false?
+              <input type="text" class="form-control"
+              onChange={(event)=>{
+                this.setState({phone:event.target.value})
+              }}
+              value={this.state.phone} ref={c => this.phone = c}></input>
+              :<input type="text" class="form-control"
+              value={this.state.phone} ref={c => this.phone = c}></input>}
             </div>
           </div>
 
           <div class="form-group">
             <label class="col-sm-2 control-label">Address</label>
             <div class="col-sm-10">
-              <input type="text" class="form-control" ref={c => this.address = c}></input>
+            {this.state.editStatus!=false?
+              <input type="text" class="form-control"
+              onChange={(event)=>{
+                this.setState({address:event.target.value})
+              }}
+              value={this.state.address} ref={c => this.address = c}></input>
+              :<input type="text" class="form-control"
+              value={this.state.address} ref={c => this.address = c}></input>}
             </div>
           </div>
 
+          {this.state.editStatus!=false?
           <div class="form-group">
             <div class="col-sm-10 col-sm-offset-2">
-              <button type="submit" class="btn btn-primary">Submit</button>
+              
+              <button type="submit" class="btn btn-primary">UPDATE</button>
             </div>
           </div>
-
+          :<h1></h1>}
         </div>
       </div>
     
     </form>
+    {this.state.editStatus==false?
+    <div class="form-group">
+            <div class="col-sm-10 col-sm-offset-2">
+              
+              <button type="submit" class="btn btn-primary" 
+              onClick={(event) =>(this.setState({editStatus:true}))} >EDIT</button>
+            </div>
+    </div>
+    :<h1></h1>}
   </div>
 </div>
 </div>

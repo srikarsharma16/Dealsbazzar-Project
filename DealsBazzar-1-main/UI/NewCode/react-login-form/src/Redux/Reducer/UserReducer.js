@@ -17,7 +17,11 @@ export default function UserReducer(state={},action)
 
                             case actionType.USER_UPDATE_TOKEN: return {
                                 ...state,token : action.payload.token
-                                }     
+                                }
+                            
+                            case actionType.LOAD_USERDATA: return {
+                                ...state, userdetails : action.payload.userdetails
+                            }
                             default: return state    
                         }
                     }

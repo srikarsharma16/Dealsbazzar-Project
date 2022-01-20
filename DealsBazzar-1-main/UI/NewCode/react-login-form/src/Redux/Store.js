@@ -13,7 +13,7 @@ var store=createStore(combineReducers({
     products:[],
     product:{},
     categories:[],
-    user : { loginstatus : false, token : undefined , username : undefined}
+    user : { loginstatus : false, token : undefined , username : undefined, userdetails : undefined}
 })
 
 export default store;

@@ -1,5 +1,6 @@
 import React from "react";
 import { Link, Redirect, NavLink, Navigate  } from "react-router-dom";
+import { connect } from 'react-redux'
 import "./main.css"
 import Store from '../../Redux/Store'
 import * as action from "../../Redux/Action/TokenAction"
@@ -10,13 +11,22 @@ import * as actions from '../../Redux/Action/ProductAction'
 import * as action1 from '../../Redux/Action/CategoryAction'
 import ProductService from '../../Service/ProductService'
 import CategoryService from '../../Service/CategoryService'
+import UserService from '../../Service/UserService'
+import {ACTION_LOAD_USER_DATA} from '../../Redux/Action/UserAction'
+import { ACTION_USER_LOGOUT} from '../../Redux/Action/UserAction'
 
 import {
   GoogleLoginButton,
   FacebookLoginButton
 } from "react-social-login-buttons";
 
-export default class SignInForm extends React.Component {
+var mapStateToProps = state => {
+  return {
+    user: state.user
+  }
+}
+
+class SignInForm extends React.Component {
   constructor() {
     super();
 
@@ -33,6 +43,7 @@ export default class SignInForm extends React.Component {
         .then(response => response.json())
         .then(data => {
           if (data.statusCode == 200) {
+            
             Store.dispatch({
               ...action1.ACTION_LOAD_CATEGORIES, payload: {
                 categories: data.data
@@ -44,11 +55,32 @@ export default class SignInForm extends React.Component {
               .then(data => {
                 
                 if (data.statusCode == 200) {
+                  
                   Store.dispatch({
                     ...actions.ACTION_LOAD_PRODUCTS, payload: {
                       products: data.data
                     }
                   })
+                  //User code
+                  UserService.getUser(this.props.user.token)
+                  .then(response => response.json())
+                  .then(data=> {
+
+                    if(data.statusCode==200){
+                      
+                        Store.dispatch({
+                            ...ACTION_LOAD_USER_DATA,
+                            payload:{userdetails:data.data}
+                        })
+                        
+                    }
+                    /* else{
+                        if(data.code==401)
+                            alert("session lost")
+                            Store.dispatch({...ACTION_USER_LOGOUT})
+                    } */
+                })
+                //user end
                 }
               })
             //category end
@@ -184,4 +216,4 @@ export default class SignInForm extends React.Component {
     }
 }
 
-//export default connect(mapStatetpProps)(SignInForm);
+export default connect(mapStateToProps)(SignInForm);

@@ -11,3 +11,5 @@ export const USER_UPDATE_TOKEN = "updateToken"
 export const SET_PRODUCT_ID = "productId"
 
 export const  LOAD_CATEGORIES= "loadCategories"
+
+export const LOAD_USERDATA = "loadUser"
